@@ -357,6 +357,12 @@ void setDevice(AudioDeviceID newDeviceID, ASDeviceType typeRequested) {
 }
 
 void setMaxVolume(AudioDeviceID newDeviceID) {
+	// Channel M
+	AudioObjectPropertyAddress volumePropertyAddressM = {
+		kAudioDevicePropertyVolumeScalar,
+		kAudioDevicePropertyScopeOutput,
+		0
+	};
 	// Channel L
 	AudioObjectPropertyAddress volumePropertyAddressL = {
 		kAudioDevicePropertyVolumeScalar,
@@ -370,6 +376,7 @@ void setMaxVolume(AudioDeviceID newDeviceID) {
 		2
 	};
 	Float32 volume = 1.0;
+	AudioObjectSetPropertyData(newDeviceID, &volumePropertyAddressM, 0, NULL, sizeof(volume), &volume);
 	AudioObjectSetPropertyData(newDeviceID, &volumePropertyAddressL, 0, NULL, sizeof(volume), &volume);
 	AudioObjectSetPropertyData(newDeviceID, &volumePropertyAddressR, 0, NULL, sizeof(volume), &volume);
 }
