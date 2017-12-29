@@ -37,6 +37,7 @@ void showUsage(const char * appName) {
            
            "  -t type        : device type (input/output/system).  Defaults to output.\n"
            "  -n             : cycles the audio device to the next one\n"
+           "  -m             : sets max volume after switching.\n"
            "  -s device_name : sets the audio device to the given device by name\n\n",appName);
 }
 
@@ -45,9 +46,10 @@ int runAudioSwitch(int argc, const char * argv[]) {
 	AudioDeviceID chosenDeviceID = kAudioDeviceUnknown;
 	ASDeviceType typeRequested = kAudioTypeUnknown;
 	int function = 0;
+    int maxVolume = 0;
 
 	int c;
-	while ((c = getopt(argc, (char **)argv, "hacnt:s:")) != -1) {
+	while ((c = getopt(argc, (char **)argv, "hacnmt:s:")) != -1) {
 		switch (c) {
 			case 'a':
 				// show all
@@ -72,6 +74,10 @@ int runAudioSwitch(int argc, const char * argv[]) {
 				// set the requestedDeviceName
 				function = kFunctionSetDevice;
 				strcpy(requestedDeviceName, optarg);
+				break;
+				
+			case 'm':
+				maxVolume = 1;
 				break;
 
 			case 't':
@@ -156,6 +162,9 @@ int runAudioSwitch(int argc, const char * argv[]) {
 	
 	// choose the requested audio device
 	setDevice(chosenDeviceID, typeRequested);
+	if (maxVolume) {
+		setMaxVolume(chosenDeviceID);
+	}
 	printf("%s audio device set to \"%s\"\n", deviceTypeName(typeRequested), requestedDeviceName);
 	return 0;
 	
@@ -345,6 +354,24 @@ void setDevice(AudioDeviceID newDeviceID, ASDeviceType typeRequested) {
         default: break;
 	}
 	
+}
+
+void setMaxVolume(AudioDeviceID newDeviceID) {
+	// Channel L
+	AudioObjectPropertyAddress volumePropertyAddressL = {
+		kAudioDevicePropertyVolumeScalar,
+		kAudioDevicePropertyScopeOutput,
+		1
+	};
+	// Channel R
+	AudioObjectPropertyAddress volumePropertyAddressR = {
+		kAudioDevicePropertyVolumeScalar,
+		kAudioDevicePropertyScopeOutput,
+		2
+	};
+	Float32 volume = 1.0;
+	AudioObjectSetPropertyData(newDeviceID, &volumePropertyAddressL, 0, NULL, sizeof(volume), &volume);
+	AudioObjectSetPropertyData(newDeviceID, &volumePropertyAddressR, 0, NULL, sizeof(volume), &volume);
 }
 
 void showAllDevices(ASDeviceType typeRequested) {
