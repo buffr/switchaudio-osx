@@ -46,7 +46,7 @@ int runAudioSwitch(int argc, const char * argv[]) {
 	AudioDeviceID chosenDeviceID = kAudioDeviceUnknown;
 	ASDeviceType typeRequested = kAudioTypeUnknown;
 	int function = 0;
-    int maxVolume = 0;
+	int maxVolume = 0;
 
 	int c;
 	while ((c = getopt(argc, (char **)argv, "hacnmt:s:")) != -1) {
